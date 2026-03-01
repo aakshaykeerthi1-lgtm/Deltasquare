@@ -76,15 +76,17 @@ export const solveDoubt = async (
 export const generateDiagram = async (diagramDescription: string): Promise<string | null> => {
   try {
     const ai = getAI();
-    const model = 'gemini-2.5-flash-image';
+    // Use 3.1 Flash Image with 512px for maximum speed
+    const model = 'gemini-3.1-flash-image-preview';
     const response = await ai.models.generateContent({
       model: model,
       contents: {
-        parts: [{ text: `A clean, educational, scientific diagram for 12th grade NCERT textbook. Style: Professional, labelled, clear white background. Content: ${diagramDescription}` }]
+        parts: [{ text: `Scientific diagram: ${diagramDescription}. Style: NCERT textbook, white background, labelled.` }]
       },
       config: {
         imageConfig: {
-          aspectRatio: "4:3"
+          aspectRatio: "4:3",
+          imageSize: "512px"
         }
       }
     });

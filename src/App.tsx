@@ -42,6 +42,24 @@ const App: React.FC = () => {
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [hasKey, setHasKey] = useState<boolean>(true);
+
+  useEffect(() => {
+    const checkKey = async () => {
+      if ((window as any).aistudio) {
+        const selected = await (window as any).aistudio.hasSelectedApiKey();
+        setHasKey(selected);
+      }
+    };
+    checkKey();
+  }, []);
+
+  const handleOpenKey = async () => {
+    if ((window as any).aistudio) {
+      await (window as any).aistudio.openSelectKey();
+      setHasKey(true);
+    }
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem('deltasquare_history');
@@ -152,9 +170,20 @@ const App: React.FC = () => {
           <Logo className="w-8 h-8" />
           <h1 className="text-xl font-bold tracking-tight text-slate-100">DELTA<span className="text-[#f59e0b]">SQUARE</span></h1>
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-slate-400">
-          {isSidebarOpen ? <X /> : <Menu />}
-        </button>
+        <div className="flex items-center gap-2">
+          {!hasKey && (
+            <button 
+              onClick={handleOpenKey}
+              className="p-2 bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/30 rounded-full"
+              title="Connect API Key"
+            >
+              <Zap className="w-4 h-4" />
+            </button>
+          )}
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-slate-400">
+            {isSidebarOpen ? <X /> : <Menu />}
+          </button>
+        </div>
       </header>
 
       {/* Sidebar */}
@@ -170,6 +199,17 @@ const App: React.FC = () => {
               <p className="text-[10px] text-slate-400 font-medium tracking-widest uppercase">12th Science Expert</p>
             </div>
           </div>
+
+          {!hasKey && (
+            <div className="p-4 bg-[#f59e0b]/5 border-b border-[#f59e0b]/10">
+              <button 
+                onClick={handleOpenKey}
+                className="w-full flex items-center justify-center gap-2 py-2 bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/30 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#f59e0b]/20 transition-all"
+              >
+                <Zap className="w-3 h-3" /> Connect API Key
+              </button>
+            </div>
+          )}
 
           <div className="p-4">
             <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Select Subject</h2>
