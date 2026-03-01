@@ -1,15 +1,25 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
 import { DoubtResult, Subject } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Use a function to get the AI instance to ensure it picks up the key correctly
+const getAI = () => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is missing. Please add it to your environment variables.");
+  }
+  
+  return new GoogleGenAI({ apiKey });
+};
 
 export const solveDoubt = async (
   question: string, 
   subject: Subject,
   base64Image?: string
 ): Promise<DoubtResult> => {
-  const model = 'gemini-3.1-pro-preview';
+  const ai = getAI();
+  const model = 'gemini-3-flash-preview';
   
   const prompt = `You are an expert tutor at "Institute DeltaSquare". 
   Solve the following 12th Grade Science NCERT doubt for the subject: ${subject}.
@@ -32,8 +42,9 @@ export const solveDoubt = async (
       ? { parts: [{ text: prompt }, { inlineData: { data: base64Image, mimeType: 'image/png' } }] }
       : prompt,
     config: {
-      temperature: 0.7,
+      temperature: 0.4, // Lower temperature for faster, more focused responses
       responseMimeType: "application/json",
+      thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
       responseSchema: {
         type: Type.OBJECT,
         properties: {
@@ -64,6 +75,7 @@ export const solveDoubt = async (
 
 export const generateDiagram = async (diagramDescription: string): Promise<string | null> => {
   try {
+    const ai = getAI();
     const model = 'gemini-2.5-flash-image';
     const response = await ai.models.generateContent({
       model: model,

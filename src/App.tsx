@@ -79,6 +79,7 @@ const App: React.FC = () => {
     try {
       const solution = await solveDoubt(question, selectedSubject, base64Image || undefined);
       setResult(solution);
+      setIsSolving(false); // Show the text solution immediately
       
       const newItem: HistoryItem = {
         id: Date.now().toString(),
@@ -91,9 +92,12 @@ const App: React.FC = () => {
 
       const imgUrl = await generateDiagram(solution.diagramPrompt);
       setDiagramUrl(imgUrl);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error solving doubt:", error);
-      alert("Something went wrong. Please check your connection and try again.");
+      const message = error.message?.includes("GEMINI_API_KEY") 
+        ? "API Key Missing: Please add GEMINI_API_KEY to Vercel environment variables."
+        : "Something went wrong. Please check your connection and try again.";
+      alert(message);
     } finally {
       setIsSolving(false);
     }
