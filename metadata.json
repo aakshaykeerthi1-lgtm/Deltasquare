@@ -1,0 +1,7 @@
+{
+  "name": "Remix: DeltaSquare Doubt Solver",
+  "description": "An advanced 12th Science NCERT doubt-solving platform for Institute DeltaSquare, providing detailed explanations, study tips, diagrams, and examples.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
