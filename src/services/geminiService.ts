@@ -76,17 +76,16 @@ export const solveDoubt = async (
 export const generateDiagram = async (diagramDescription: string): Promise<string | null> => {
   try {
     const ai = getAI();
-    // Use 3.1 Flash Image with 512px for maximum speed
-    const model = 'gemini-3.1-flash-image-preview';
+    // gemini-2.5-flash-image is the fastest stable model for quick illustrations
+    const model = 'gemini-2.5-flash-image';
     const response = await ai.models.generateContent({
       model: model,
       contents: {
-        parts: [{ text: `Scientific diagram: ${diagramDescription}. Style: NCERT textbook, white background, labelled.` }]
+        parts: [{ text: `Minimalist diagram: ${diagramDescription}. Simple, white background.` }]
       },
       config: {
         imageConfig: {
-          aspectRatio: "4:3",
-          imageSize: "512px"
+          aspectRatio: "4:3"
         }
       }
     });
