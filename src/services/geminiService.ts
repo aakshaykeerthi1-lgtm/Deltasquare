@@ -73,6 +73,27 @@ export const solveDoubt = async (
   return JSON.parse(response.text || '{}') as DoubtResult;
 };
 
+export const getQuickDiagramPrompt = async (question: string, subject: Subject, base64Image?: string): Promise<string> => {
+  try {
+    const ai = getAI();
+    const prompt = `Generate a 1-sentence description for a scientific diagram related to this 12th grade ${subject} doubt. ${question ? `Question: "${question}"` : "Analyze the attached image."} Focus on the most important visual element.`;
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: base64Image 
+        ? { parts: [{ text: prompt }, { inlineData: { data: base64Image, mimeType: 'image/png' } }] }
+        : prompt,
+      config: {
+        temperature: 0.2,
+        maxOutputTokens: 50,
+      }
+    });
+    return response.text?.trim() || `Diagram for ${subject}: ${question || "topic"}`;
+  } catch (error) {
+    return `Scientific diagram for ${subject} topic: ${question || "NCERT"}`;
+  }
+};
+
 export const generateDiagram = async (diagramDescription: string): Promise<string | null> => {
   try {
     const ai = getAI();

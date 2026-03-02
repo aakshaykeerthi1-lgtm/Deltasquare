@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Subject, DoubtResult, HistoryItem } from './types';
-import { solveDoubt, generateDiagram } from './services/geminiService';
+import { solveDoubt, generateDiagram, getQuickDiagramPrompt } from './services/geminiService';
 import { 
   Atom, 
   Beaker, 
@@ -95,6 +95,12 @@ const App: React.FC = () => {
     setDiagramUrl(null);
 
     try {
+      // Start diagram generation immediately in the background
+      getQuickDiagramPrompt(question, selectedSubject, base64Image || undefined).then(async (prompt) => {
+        const imgUrl = await generateDiagram(prompt);
+        setDiagramUrl(imgUrl);
+      }).catch(err => console.error("Quick diagram failed:", err));
+
       const solution = await solveDoubt(question, selectedSubject, base64Image || undefined);
       setResult(solution);
       setIsSolving(false); // Show the text solution immediately
@@ -107,9 +113,6 @@ const App: React.FC = () => {
         timestamp: Date.now()
       };
       setHistory(prev => [newItem, ...prev].slice(0, 10));
-
-      const imgUrl = await generateDiagram(solution.diagramPrompt);
-      setDiagramUrl(imgUrl);
     } catch (error: any) {
       console.error("Error solving doubt:", error);
       const message = error.message?.includes("GEMINI_API_KEY") 
